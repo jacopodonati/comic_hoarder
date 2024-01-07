@@ -1,4 +1,3 @@
 # comic_hoarder
-A bunch of scripts to batch-download comics from the internet.  Since they're not using any APIs but it's just web scraping, they may be broken.
 
-Also, they're not properly documented. Actually, they're not documented at all, because I'm not very good at this.
+`ch` is a simple utility to download comics from the web. The plan is to support more sources and features.
