@@ -19,11 +19,35 @@ import argparse
 import logging
 from urllib.parse import urlparse
 import re
+import requests
+from lxml import html
+import os
 
 PAGE_ERROR = -1
 PAGE_NOT_SUPPORTED = 0
 PAGE_ARCHIVE = 1
 PAGE_SINGLE = 2
+
+def download_single(url):
+    logging.debug(f"Downloading single comic at {url}")
+    headers = { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36'
+        }
+    page = requests.get(url, headers=headers)
+    if (page.status_code == 200):
+        tree = html.fromstring(page.text)
+        comic_title = tree.xpath('//div[@data-shareable-model="FeatureItem"]/@data-feature-name')
+        comic_date = tree.xpath('//div[@data-shareable-model="FeatureItem"]/@data-date')
+        img_url = tree.xpath('//picture[@class="item-comic-image"]/img/@src')
+        logging.debug(f"Downloading image {img_url[0]}")
+        r = requests.get(img_url[0])
+        path = './'
+        filename = f"{comic_title[0]} - {comic_date[0]}.gif"
+        with open(os.path.join(path, filename), 'wb') as fd:
+            logging.debug(f"Writing file {filename} in folder {path}")
+            fd.write(r.content)
+    else:
+        logging.error(f"Error downloading {url}. Status code: {page.status_code}")
 
 def identify_url(url):
     logging.debug(f"Checking what kind of URL is {url}")
@@ -53,14 +77,9 @@ def main():
                         help='URL of the single comic')
     parser.add_argument('--debug',
                         action='store_true')
-    # parser.add_argument('--start-at',
-    #                     type=int,
-    #                     default=1)
     args = parser.parse_args()
 
-    # Make progressbar play nicely with logging
-    progressbar.streams.wrap_stderr()
-
+    # Set up logging
     if (args.debug):
         logging.basicConfig(level=logging.DEBUG)
     else:
@@ -70,5 +89,8 @@ def main():
     # Identify the kind of URL we're working on and act accordingly
     url = args.url
     kind_of_page = identify_url(url)
+    if (kind_of_page == PAGE_SINGLE):
+        download_single(url)
+
 if __name__ == "__main__":
     main()
