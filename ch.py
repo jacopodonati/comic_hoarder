@@ -56,8 +56,8 @@ def download_single(url):
 def identify_url(url):
     logging.debug(f"Checking what kind of URL is {url}")
     o = urlparse(url)
-    re_archive = re.compile('\/[a-zA-Z0-9\-]+')
-    re_single = re.compile('\/[a-zA-Z0-9\-]+\/[0-9]+\/[0-9]+\/[0-9]+')
+    re_archive = re.compile('/[a-zA-Z0-9-]+')
+    re_single = re.compile('/[a-zA-Z0-9-]+/[0-9]+/[0-9]+/[0-9]+')
     if o.hostname != 'www.gocomics.com':
         logging.debug('URL not supported')
         return PAGE_NOT_SUPPORTED
