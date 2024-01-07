@@ -43,9 +43,13 @@ def download_single(url):
         r = requests.get(img_url[0])
         path = './'
         filename = f"{comic_title[0]} - {comic_date[0]}.gif"
-        with open(os.path.join(path, filename), 'wb') as fd:
-            logging.debug(f"Writing file {filename} in folder {path}")
-            fd.write(r.content)
+        file = os.path.join(path, filename)
+        if os.path.exists(file):
+            logging.debug(f"File {file} already exists. Skipping.")
+        else:
+            with open(file, 'wb') as fd:
+                logging.debug(f"Writing file {filename} in folder {path}")
+                fd.write(r.content)
     else:
         logging.error(f"Error downloading {url}. Status code: {page.status_code}")
 
