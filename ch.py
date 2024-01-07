@@ -17,6 +17,31 @@
 
 import argparse
 import logging
+from urllib.parse import urlparse
+import re
+
+PAGE_ERROR = -1
+PAGE_NOT_SUPPORTED = 0
+PAGE_ARCHIVE = 1
+PAGE_SINGLE = 2
+
+def identify_url(url):
+    logging.debug(f"Checking what kind of URL is {url}")
+    o = urlparse(url)
+    re_archive = re.compile('\/[a-zA-Z0-9\-]+')
+    re_single = re.compile('\/[a-zA-Z0-9\-]+\/[0-9]+\/[0-9]+\/[0-9]+')
+    if o.hostname != 'www.gocomics.com':
+        logging.debug('URL not supported')
+        return PAGE_NOT_SUPPORTED
+    elif re_archive.fullmatch(o.path):
+        logging.debug('URL is an archive')
+        return PAGE_ARCHIVE
+    elif re_single.fullmatch(o.path):
+        logging.debug('URL is a single page')
+        return PAGE_SINGLE
+    else:
+        logging.debug('URL error')
+        return PAGE_ERROR
 
 def main():
     # Define the args you can pass
@@ -42,5 +67,8 @@ def main():
         logging.basicConfig(level=logging.INFO)
     logging.debug('Booting up')
 
+    # Identify the kind of URL we're working on and act accordingly
+    url = args.url
+    kind_of_page = identify_url(url)
 if __name__ == "__main__":
     main()
