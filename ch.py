@@ -17,7 +17,7 @@
 
 import argparse
 import logging
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 import re
 import requests
 from lxml import html
@@ -27,6 +27,26 @@ PAGE_ERROR = -1
 PAGE_NOT_SUPPORTED = 0
 PAGE_ARCHIVE = 1
 PAGE_SINGLE = 2
+
+def download_archive(url, quantity):
+    logging.debug(f"Downloading {quantity} comic from archive at {url}")
+    headers = { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36'
+        }
+    page = requests.get(url, headers=headers)
+    if (page.status_code == 200):
+        tree = html.fromstring(page.text)
+        o = urlparse(url)
+        latest_path = tree.xpath('//span[text()="Read Now"]/ancestor::div/ancestor::div/ancestor::a/@href')
+        latest_url = urlunparse(o._replace(path=latest_path[0]))
+        for i in range(quantity):
+            logging.debug(f"Latest URL is {latest_url}.")
+            download_single(latest_url)
+            if i < quantity:
+                page = requests.get(latest_url, headers=headers)
+                tree = html.fromstring(page.text)
+                latest_path = tree.xpath('//a[contains(@class, "js-previous-comic")]/@href')
+                latest_url = urlunparse(o._replace(path=latest_path[0]))
 
 def download_single(url):
     logging.debug(f"Downloading single comic at {url}")
@@ -81,6 +101,11 @@ def main():
                         help='URL of the single comic')
     parser.add_argument('--debug',
                         action='store_true')
+    parser.add_argument('--quantity',
+                        nargs='?',
+                        default=1,
+                        type=int,
+                        help='How many comics to download from an archive. Default is 1 (i.e. the latest).')
     args = parser.parse_args()
 
     # Set up logging
@@ -92,9 +117,13 @@ def main():
 
     # Identify the kind of URL we're working on and act accordingly
     url = args.url
+    quantity = args.quantity
+    logging.debug(f"Downloading {quantity} comics from {url}.")
     kind_of_page = identify_url(url)
     if (kind_of_page == PAGE_SINGLE):
         download_single(url)
+    elif (kind_of_page == PAGE_ARCHIVE):
+        download_archive(url, quantity)
 
 if __name__ == "__main__":
     main()
