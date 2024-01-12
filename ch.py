@@ -98,14 +98,17 @@ def main():
                     description = 'Downloads comics for later enjoyment',
                     )
     parser.add_argument('url',
-                        help='URL of the single comic')
+                        help='URL of the single comic'
+                        )
     parser.add_argument('--debug',
-                        action='store_true')
+                        action='store_true'
+                        )
     parser.add_argument('--quantity',
                         nargs='?',
                         default=1,
                         type=int,
-                        help='How many comics to download from an archive. Default is 1 (i.e. the latest).')
+                        help='How many comics to download from an archive. Default is 1 (i.e. the latest).'
+                        )
     args = parser.parse_args()
 
     # Set up logging
