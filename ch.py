@@ -61,17 +61,20 @@ def download_single(url):
         comic_title = tree.xpath('//div[@data-shareable-model="FeatureItem"]/@data-feature-name')
         comic_date = tree.xpath('//div[@data-shareable-model="FeatureItem"]/@data-date')
         img_url = tree.xpath('//picture[@class="item-comic-image"]/img/@src')
-        logging.debug(f"Downloading image {img_url[0]}")
-        r = requests.get(img_url[0])
-        path = './'
-        filename = f"{comic_title[0]} - {comic_date[0]}.gif"
-        file = os.path.join(path, filename)
-        if os.path.exists(file):
-            logging.debug(f"File {file} already exists. Skipping.")
+        if not settings['dry']:
+            logging.debug(f"Downloading image {img_url[0]}")
+            r = requests.get(img_url[0])
+            path = './'
+            filename = f"{comic_title[0]} - {comic_date[0]}.gif"
+            file = os.path.join(path, filename)
+            if os.path.exists(file):
+                logging.debug(f"File {file} already exists. Skipping.")
+            else:
+                with open(file, 'wb') as fd:
+                    logging.debug(f"Writing file {filename} in folder {path}")
+                    fd.write(r.content)
         else:
-            with open(file, 'wb') as fd:
-                logging.debug(f"Writing file {filename} in folder {path}")
-                fd.write(r.content)
+            logging.debug(f"Simulating the download of image {img_url[0]}")
     else:
         logging.error(f"Error downloading {url}. Status code: {page.status_code}")
 
@@ -105,6 +108,11 @@ def main():
     parser.add_argument('--debug',
                         action='store_true'
                         )
+    parser.add_argument('--dry',
+                        default=False,
+                        action='store_true',
+                        help='Simulate the download without downloading any file'
+                        )
     parser.add_argument('--quantity',
                         nargs='?',
                         default=1,
@@ -122,6 +130,7 @@ def main():
 
     # Identify the kind of URL we're working on and act accordingly
     settings['url'] = args.url
+    settings['dry'] = args.dry
     settings['quantity'] = args.quantity
     logging.debug(f"Downloading {settings['quantity']} comics from {settings['url']}.")
     settings['kind_of_page'] = identify_url(settings['url'])
