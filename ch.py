@@ -28,8 +28,10 @@ PAGE_NOT_SUPPORTED = 0
 PAGE_ARCHIVE = 1
 PAGE_SINGLE = 2
 
-def download_archive(url, quantity):
-    logging.debug(f"Downloading {quantity} comic from archive at {url}")
+settings = {}
+
+def download_archive(url):
+    logging.debug(f"Downloading {settings['quantity']} comic from archive at {url}")
     headers = { 
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36'
         }
@@ -39,10 +41,10 @@ def download_archive(url, quantity):
         o = urlparse(url)
         latest_path = tree.xpath('//span[text()="Read Now"]/ancestor::div/ancestor::div/ancestor::a/@href')
         latest_url = urlunparse(o._replace(path=latest_path[0]))
-        for i in range(quantity):
+        for i in range(settings['quantity']):
             logging.debug(f"Latest URL is {latest_url}.")
             download_single(latest_url)
-            if i < quantity:
+            if i < settings['quantity']:
                 page = requests.get(latest_url, headers=headers)
                 tree = html.fromstring(page.text)
                 latest_path = tree.xpath('//a[contains(@class, "js-previous-comic")]/@href')
@@ -119,14 +121,14 @@ def main():
     logging.debug('Booting up')
 
     # Identify the kind of URL we're working on and act accordingly
-    url = args.url
-    quantity = args.quantity
-    logging.debug(f"Downloading {quantity} comics from {url}.")
-    kind_of_page = identify_url(url)
-    if (kind_of_page == PAGE_SINGLE):
-        download_single(url)
-    elif (kind_of_page == PAGE_ARCHIVE):
-        download_archive(url, quantity)
+    settings['url'] = args.url
+    settings['quantity'] = args.quantity
+    logging.debug(f"Downloading {settings['quantity']} comics from {settings['url']}.")
+    settings['kind_of_page'] = identify_url(settings['url'])
+    if (settings['kind_of_page'] == PAGE_SINGLE):
+        download_single(settings['url'])
+    elif (settings['kind_of_page'] == PAGE_ARCHIVE):
+        download_archive(settings['url'])
 
 if __name__ == "__main__":
     main()
