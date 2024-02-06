@@ -17,13 +17,9 @@
 
 import argparse
 import logging
-from urllib.parse import urlparse, urlunparse
-import re
-import requests
-from lxml import html
-import os
 
-PAGE_ERROR = -1
+from platforms import *
+
 PAGE_NOT_SUPPORTED = 0
 PAGE_ARCHIVE = 1
 PAGE_SINGLE = 2
