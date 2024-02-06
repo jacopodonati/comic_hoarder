@@ -29,7 +29,8 @@ PAGE_SINGLE = 2
 def get_platform(url):
     logging.debug(f"Checking which platform hosts the comic")
     platforms = {
-        'www.gocomics.com': GoComics}
+        'www.gocomics.com': GoComics,
+        'xkcd.com': xkcd}
     o = urlparse(url)
     if o.hostname in platforms:
         p = platforms[o.hostname]

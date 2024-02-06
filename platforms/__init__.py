@@ -17,8 +17,10 @@
 
 __all__ = [
     'BasicPlatform',
-    'GoComics'
+    'GoComics',
+    'xkcd'
 ]
 
 from platforms.BasicPlatform import BasicPlatform
 from platforms.GoComics import GoComics
+from platforms.xkcd import xkcd
