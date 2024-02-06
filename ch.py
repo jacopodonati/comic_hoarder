@@ -95,8 +95,8 @@ def identify_url(url):
 def main():
     # Define the args you can pass
     parser = argparse.ArgumentParser(
-                    prog = 'Comic Hoarder',
-                    description = 'Downloads comics for later enjoyment',
+                    prog='Comic Hoarder',
+                    description='Downloads comics for later enjoyment',
                     )
     parser.add_argument('url',
                         help='URL of the single comic'
