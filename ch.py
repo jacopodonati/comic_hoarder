@@ -125,9 +125,10 @@ def main():
     logging.debug('Booting up')
 
     # Identify the kind of URL we're working on and act accordingly
+    settings = {}
     settings['url'] = args.url
     settings['dry'] = args.dry
-    settings['quantity'] = args.quantity
+    settings['quantity'] = args.quantity[0]
     logging.debug(f"Downloading {settings['quantity']} comics from {settings['url']}.")
     settings['kind_of_page'] = identify_url(settings['url'])
     if (settings['kind_of_page'] == PAGE_SINGLE):
